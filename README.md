@@ -1,7 +1,8 @@
-Bitcoin Core integration/staging tree
-=====================================
+Blockchain Core for applications
+================================
 
-[![Build Status](https://travis-ci.org/bitcoin/bitcoin.svg?branch=master)](https://travis-ci.org/bitcoin/bitcoin)
+This fork of the bitcoin core is attempting to carve it into a blockchain toolkit for
+applications.
 
 https://bitcoincore.org
 
