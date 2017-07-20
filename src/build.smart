@@ -1,7 +1,6 @@
 project src
 
 import (
-    '../@'
     'tools/gcc/c++'
     './crypto'
     './univalue'
@@ -12,7 +11,7 @@ import (
 
 files '*.h' '*.cpp' '*.o' '*.a'
 
-compile_flags += $(at.variant_cflags)
+compile_flags += $(@.variant_cflags)
 compile_flags += -DHAVE_CONFIG_H
 compile_flags += -DBOOST_NO_CXX11_SCOPED_ENUMS
 compile_flags += -I"$/" -I"$//config"
@@ -33,8 +32,8 @@ programs: \
   bitcoin-tx \
   bitcoind
 
-objects:[(compare) (stderr) (shell)]: bitcoind.o
-	@cp -vf $< bitcoind-bitcoind.o
+objects:[(stderr) (shell)]: bitcoind.o
+	@#cp -vf $< bitcoind-bitcoind.o
 
 %.o:[(compare) (stderr) (shell)]: %.cpp
 	$(compile) $< -o $@

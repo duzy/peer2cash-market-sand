@@ -6,7 +6,6 @@ libbitcoin_common.a:[(compare) (stderr) (shell)]: \
   amount.o base58.o chainparams.o coins.o compressor.o \
   core_read.o core_write.o key.o keystore.o netaddress.o \
   netbase.o protocol.o scheduler.o \
-  script/sign.o script/standard.o \
-  warnings.o
+  script/sign.o script/standard.o
 	$(archive) $@ $^
 

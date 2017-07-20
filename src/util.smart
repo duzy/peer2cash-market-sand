@@ -3,7 +3,7 @@ project src
 files '*.h' '*.cpp' '*.o' '*.a'
 
 libbitcoin_util.a:[(compare) (stderr) (shell)]: \
-  support/lockedpool.o \
+  support/pagelocker.o \
   chainparamsbase.o \
   clientversion.o \
   compat/glibc_sanity.o \
@@ -13,7 +13,6 @@ libbitcoin_util.a:[(compare) (stderr) (shell)]: \
   rpc/protocol.o \
   support/cleanse.o \
   sync.o \
-  threadinterrupt.o \
   util.o \
   utilmoneystr.o \
   utilstrencodings.o \
