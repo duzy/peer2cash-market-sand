@@ -3,24 +3,25 @@ project src
 files '*.h' '*.cpp' '*.o' '*.a' 'bitcoind'
 
 xlibs = \
-  -lbitcoin_server \
-  -lbitcoin_wallet \
-  \
-  -lbitcoin_common \
-  -lbitcoin_util \
-  -lbitcoin_consensus \
-  \
-  -lcrypto \
-  -lminiupnpc \
-  -levent_pthreads -levent \
-  -ldb_cxx \
-  \
-  -lboost_filesystem \
-  -lboost_program_options \
-  -lboost_system \
-  -lboost_thread \
-  -lboost_chrono \
-  -lpthread
+    -lbitcoin_server \
+    -lbitcoin_wallet \
+    \
+    -lbitcoin_common \
+    -lbitcoin_util \
+    -lbitcoin_consensus \
+    \
+    -lcrypto \
+    -lminiupnpc \
+    -levent_pthreads -levent \
+    -ldb_cxx \
+    \
+    -lboost_filesystem \
+    -lboost_program_options \
+    -lboost_system \
+    -lboost_thread \
+    -lboost_chrono \
+    -lpthread \
+    -lanl
 
 svrlibs = $(xlibs) \
   -lbitcoin_crypto \
@@ -32,9 +33,9 @@ svrlibs = $(xlibs) \
 libbitcoin_server.a:[(compare) (stderr) (shell)]: \
   addrman.o addrdb.o bloom.o blockencodings.o chain.o \
   checkpoints.o httprpc.o httpserver.o \
-  init.o dbwrapper.o merkleblock.o \
-  miner.o net.o net_processing.o \
-  noui.o policy/fees.o policy/policy.o \
+  init.o dbwrapper.o main.o merkleblock.o \
+  miner.o net.o noui.o \
+  policy/fees.o policy/policy.o \
   pow.o rest.o \
   rpc/blockchain.o \
   rpc/mining.o \
@@ -45,7 +46,7 @@ libbitcoin_server.a:[(compare) (stderr) (shell)]: \
   script/sigcache.o \
   script/ismine.o \
   timedata.o torcontrol.o txdb.o txmempool.o \
-  ui_interface.o validation.o validationinterface.o \
+  ui_interface.o validationinterface.o \
   versionbits.o
 	$(archive) $@ $^
 
