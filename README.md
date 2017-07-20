@@ -4,7 +4,6 @@ Blockchain Core for Applications
 This fork of the bitcoin core is attempting to carve it into a blockchain toolkit for
 applications.
 
-<<<<<<< HEAD
 https://bitcoincore.org
 
 What is Bitcoin?
@@ -82,6 +81,3 @@ Translations are periodically pulled from Transifex and merged into the git repo
 pull from Transifex would automatically overwrite them again.
 
 Translators should also subscribe to the [mailing list](https://groups.google.com/forum/#!forum/bitcoin-translators).
-=======
-**Warnings: changes committed in this fork are experimental, take it on your own risks!**
->>>>>>> Changes README.md for blockchain core fork.
