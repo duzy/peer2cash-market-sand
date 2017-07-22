@@ -12,7 +12,7 @@ compile_flags += -I"$(dir $/)" -I"$(dir $/)/config"
 compile = $(c++.compiler) $(compile_flags)
 
 libbitcoin_crypto.a:[(compare) (stderr) (shell)]: \
-  aes.o hmac_sha256.o hmac_sha512.o \
+  aes.o chacha20.o hmac_sha256.o hmac_sha512.o \
   ripemd160.o sha1.o sha256.o sha512.o
 	$(archive) $@ $^
 
