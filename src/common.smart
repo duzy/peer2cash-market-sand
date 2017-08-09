@@ -1,9 +1,10 @@
 project
 
+common_lib := libbitcoin_common.a
 common_objects := \
     base58.o chainparams.o coins.o compressor.o \
     core_read.o core_write.o key.o keystore.o netaddress.o \
     netbase.o policy/feerate.o protocol.o scheduler.o \
     script/sign.o script/standard.o warnings.o
 
-libbitcoin_common.a: lib.a($@, $(common_objects))
+$(common_lib): lib.a($(common_lib) $(common_objects))

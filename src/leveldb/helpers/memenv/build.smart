@@ -4,9 +4,10 @@ CXXFLAGS += $(@.variant_cflags)
 CXXFLAGS += -DLEVELDB_PLATFORM_POSIX
 CXXFLAGS += -I"$(dirdir $/)" -I"$(dirdir $/)/include"
 
+lib := libmemenv.a
 objects := memenv.o
 
-libmemenv.a: lib.a($@, $(objects))
+$(lib): lib.a($(lib) $(objects))
 
 clean:[(stderr) (stdout) (shell)]
 	@echo "clean: $." && rm -vf *.a *.o

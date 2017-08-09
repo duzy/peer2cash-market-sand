@@ -1,5 +1,6 @@
 project
 
+consensus_lib := libbitcoin_consensus.a
 consensus_objects := \
     arith_uint256.o consensus/merkle.o hash.o primitives/block.o \
     primitives/transaction.o pubkey.o \
@@ -10,4 +11,4 @@ consensus_objects := \
     uint256.o \
     utilstrencodings.o
 
-libbitcoin_consensus.a: lib.a($@, $(consensus_objects))
+$(consensus_lib): lib.a($(consensus_lib) $(consensus_objects))

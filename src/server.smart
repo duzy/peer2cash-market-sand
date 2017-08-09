@@ -30,6 +30,7 @@ svrlibs = $(xlibs) \
   -lleveldb \
   -lmemenv
 
+server_lib := libbitcoin_server.a
 server_objects := \
   addrman.o addrdb.o bloom.o blockencodings.o chain.o \
   checkpoints.o consensus/tx_verify.o httprpc.o httpserver.o \
@@ -50,10 +51,10 @@ server_objects := \
   validation.o validationinterface.o \
   versionbits.o
 
-libbitcoin_server.a: lib.a($@, $(server_objects))
+$(server_lib): lib.a($(server_lib) $(server_objects))
 
 bitcoind:[(compare) (stderr) (shell)]: bitcoind.o
-	$(LINK) -o $@ $^ -L. $(svrlibs)
+	$(LINK) -o $@ $^ -L. $(LDFLAGS) $(svrlibs)
 
-link-svr:[(cd) ((lib objects)) (compare lib) (stdout) (stderr) (shell)]: &objects
-	$(LINK) -o $lib $objects -L$. $(svrlibs)
+link-svr:[(cd) ((bin objects)) (compare bin) (stdout) (stderr) (shell)]: $objects
+	$(LINK) -o $bin $objects -L$. $(LDFLAGS) $(svrlibs)

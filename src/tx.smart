@@ -23,4 +23,4 @@ txlibs = \
   -lpthread
 
 bitcoin-tx:[(compare) (stderr) (shell)]: bitcoin-tx.o
-	$(LINK) -o $@ $^ -L. $(txlibs)
+	$(LINK) -o $@ $^ -L. $(LDFLAGS) $(txlibs)

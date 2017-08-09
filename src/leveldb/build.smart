@@ -4,6 +4,7 @@ CXXFLAGS += $(@.variant_cflags)
 CXXFLAGS += -DLEVELDB_PLATFORM_POSIX
 CXXFLAGS += -I"$/" -I"$//include"
 
+lib := libleveldb.a
 objects := \
     db/builder.o \
     db/c.o \
@@ -46,7 +47,7 @@ objects := \
     port/port_posix.o \
     port/port_posix_sse.o
 
-libleveldb.a: lib.a($@ $(objects))
+$(lib): lib.a($(lib) $(objects))
 
 clean:[(stderr) (stdout) (shell)]
 	@echo "clean: $." && rm -vf *.a \

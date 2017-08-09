@@ -1,12 +1,13 @@
 project
 
-files '*.h' '*.cpp' '*.o' '*.a'
+wallet_lib := libbitcoin_wallet.a
+wallet_objects := \
+    wallet/crypter.o \
+    wallet/db.o \
+    wallet/rpcdump.o \
+    wallet/rpcwallet.o \
+    wallet/wallet.o \
+    wallet/walletdb.o \
+    policy/rbf.o
 
-libbitcoin_wallet.a: lib.a($@, \
-  wallet/crypter.o \
-  wallet/db.o \
-  wallet/rpcdump.o \
-  wallet/rpcwallet.o \
-  wallet/wallet.o \
-  wallet/walletdb.o \
-  policy/rbf.o)
+$(wallet_lib): lib.a($(wallet_lib) $(wallet_objects))

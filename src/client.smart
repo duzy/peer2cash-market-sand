@@ -1,6 +1,6 @@
 project
 
-files '*.o' '*.a' 'bitcoin-cli'
+files 'bitcoin-cli'
 
 clilibs = \
   -lbitcoin_cli \
@@ -19,9 +19,13 @@ clilibs = \
   -lboost_chrono \
   -lpthread
 
-libbitcoin_cli.a: lib.a($@, rpc/client.o)
-bitcoin-cli:[(compare) (stderr) (shell)]: bitcoin-cli.o
-	$(LINK) -o $@ $^ -L. $(clilibs)
+client_lib := libbitcoin_cli.a
+client_objects := rpc/client.o
 
-link-cli:[(cd) ((lib objects)) (compare lib) (stdout) (stderr) (shell)]: &objects
-	$(LINK) -o $lib $objects -L$. $(clilibs)
+$(client_lib): lib.a($(client_lib) $(client_objects))
+
+bitcoin-cli:[(compare) (stderr) (shell)]: bitcoin-cli.o
+	$(LINK) -o $@ $^ -L. $(LDFLAGS) $(clilibs)
+
+link-cli:[(cd) ((bin objects)) (compare bin) (stdout) (stderr) (shell)]: $objects
+	$(LINK) -o $bin $objects -L$. $(LDFLAGS) $(clilibs)
