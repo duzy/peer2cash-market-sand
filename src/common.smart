@@ -1,11 +1,9 @@
-project src
+project
 
-files '*.h' '*.cpp' '*.o' '*.a'
-
-libbitcoin_common.a:[(compare) (stderr) (shell)]: \
+common_objects := \
     base58.o chainparams.o coins.o compressor.o \
     core_read.o core_write.o key.o keystore.o netaddress.o \
     netbase.o policy/feerate.o protocol.o scheduler.o \
     script/sign.o script/standard.o warnings.o
-	$(archive) $@ $^
 
+libbitcoin_common.a: lib.a($@, $(common_objects))

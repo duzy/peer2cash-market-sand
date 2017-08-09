@@ -1,14 +1,13 @@
-project src
+project
 
-files '*.h' '*.cpp' '*.o' '*.a'
+consensus_objects := \
+    arith_uint256.o consensus/merkle.o hash.o primitives/block.o \
+    primitives/transaction.o pubkey.o \
+    script/bitcoinconsensus.o \
+    script/interpreter.o \
+    script/script.o \
+    script/script_error.o \
+    uint256.o \
+    utilstrencodings.o
 
-libbitcoin_consensus.a:[(compare) (stderr) (shell)]: \
-  arith_uint256.o consensus/merkle.o hash.o primitives/block.o \
-  primitives/transaction.o pubkey.o \
-  script/bitcoinconsensus.o \
-  script/interpreter.o \
-  script/script.o \
-  script/script_error.o \
-  uint256.o \
-  utilstrencodings.o
-	$(archive) $@ $^
+libbitcoin_consensus.a: lib.a($@, $(consensus_objects))

@@ -1,26 +1,24 @@
-project univalue
+project (tools/gcc/c++)
 
-import (
-    'tools/gcc/c++'
+files (
+    '*.a'
+    #'*.o' => lib
+    #'*.cpp' => lib
 )
 
-files '*.o' '*.a' '*.cpp' '*.h'
+CXXFLAGS := $(CXXFLAGS)
+CXXFLAGS += $(@.variant_cflags) -I"$//include"
 
-compile_flags += $(@.variant_cflags)
-compile_flags += -I"$//include"
-compile = $(c++.compiler) $(compile_flags)
+lib = libunivalue.a
+objects = lib/univalue.o lib/univalue_read.o lib/univalue_write.o
 
-libunivalue.a:[(compare) (stderr) (shell)]: \
-  lib/univalue.o lib/univalue_read.o lib/univalue_write.o
-	$(archive) $@ $^
-
-%.o:[(compare) (stderr) (shell)]: %.cpp
-	$(compile) $^ -o $@
+$(lib): lib.a($(lib) $(objects))
 
 use:
-	compile_flags += -I"$//include"
-	link_flags += -L"$/"
-	libs += -lunivalue
+	CXXFLAGS += -I"$//include"
+	LDFLAGS += -L"$/"
+	LDLIBS += -lunivalue
 
-clean:[(stderr) (stdout) (shell)]
-	@echo "clean: $." && rm -vf *.o *.lo *.la *.a .libs/* .deps/*
+clean:
+	println "clean: $."
+	remove-all $(lib) $(objects) '*.lo' '*.la' '.libs/*' 'lib/.deps/*'

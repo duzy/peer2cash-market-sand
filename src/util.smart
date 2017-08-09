@@ -1,8 +1,8 @@
-project src
+project
 
 files '*.h' '*.cpp' '*.o' '*.a'
 
-libbitcoin_util.a:[(compare) (stderr) (shell)]: \
+libbitcoin_util.a: lib.a($@, \
   support/lockedpool.o \
   chainparamsbase.o \
   clientversion.o \
@@ -18,5 +18,4 @@ libbitcoin_util.a:[(compare) (stderr) (shell)]: \
   util.o \
   utilmoneystr.o \
   utilstrencodings.o \
-  utiltime.o
-	$(archive) $@ $^
+  utiltime.o)

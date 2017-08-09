@@ -1,6 +1,6 @@
-project src
+project
 
-files '*.h' '*.cpp' '*.o' '*.a' 'bitcoind'
+files 'bitcoind'
 
 xlibs = \
     -lbitcoin_server \
@@ -30,7 +30,7 @@ svrlibs = $(xlibs) \
   -lleveldb \
   -lmemenv
 
-libbitcoin_server.a:[(compare) (stderr) (shell)]: \
+server_objects := \
   addrman.o addrdb.o bloom.o blockencodings.o chain.o \
   checkpoints.o consensus/tx_verify.o httprpc.o httpserver.o \
   init.o dbwrapper.o merkleblock.o \
@@ -49,7 +49,11 @@ libbitcoin_server.a:[(compare) (stderr) (shell)]: \
   ui_interface.o \
   validation.o validationinterface.o \
   versionbits.o
-	$(archive) $@ $^
+
+libbitcoin_server.a: lib.a($@, $(server_objects))
 
 bitcoind:[(compare) (stderr) (shell)]: bitcoind.o
-	$(link) -o $@ $^ -L. $(svrlibs)
+	$(LINK) -o $@ $^ -L. $(svrlibs)
+
+link-svr:[(cd) ((lib objects)) (compare lib) (stdout) (stderr) (shell)]: &objects
+	$(LINK) -o $lib $objects -L$. $(svrlibs)

@@ -1,17 +1,10 @@
-project leveldb
+project (tools/gcc/c++)
 
-import (
-    'tools/gcc/c++'
-)
+CXXFLAGS += $(@.variant_cflags)
+CXXFLAGS += -DLEVELDB_PLATFORM_POSIX
+CXXFLAGS += -I"$/" -I"$//include"
 
-files '*.cc' '*.o' '*.a'
-
-compile_flags += $(@.variant_cflags)
-compile_flags += -DLEVELDB_PLATFORM_POSIX
-compile_flags += -I"$/" -I"$//include"
-compile = $(c++.compiler) $(compile_flags)
-
-libleveldb.a:[(compare) (stderr) (shell)]: \
+objects := \
     db/builder.o \
     db/c.o \
     db/dbformat.o \
@@ -52,17 +45,15 @@ libleveldb.a:[(compare) (stderr) (shell)]: \
     util/status.o \
     port/port_posix.o \
     port/port_posix_sse.o
-	$(archive) $@ $^
 
-%.o:[(compare) (stderr) (shell)]: %.cc
-	$(compile) $^ -o $@
+libleveldb.a: lib.a($@ $(objects))
 
 clean:[(stderr) (stdout) (shell)]
 	@echo "clean: $." && rm -vf *.a \
 	db/*.o port/*.o table/*.o util/*.o
 
 use:
-	compile_flags += -I"$//include"
-	compile_flags += -I"$//helpers/memenv"
-	link_flags += -L"$/"
-	libs += -lleveldb
+	CXXFLAGS += -I"$//include"
+	CXXFLAGS += -I"$//helpers/memenv"
+	LDFLAGS += -L"$/"
+	LDLIBS += -lleveldb

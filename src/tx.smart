@@ -1,4 +1,4 @@
-project src
+project
 
 files '*.o' 'bitcoin-tx'
 
@@ -23,4 +23,4 @@ txlibs = \
   -lpthread
 
 bitcoin-tx:[(compare) (stderr) (shell)]: bitcoin-tx.o
-	$(link) -o $@ $^ -L. $(txlibs)
+	$(LINK) -o $@ $^ -L. $(txlibs)
