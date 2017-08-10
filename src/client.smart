@@ -28,4 +28,4 @@ bitcoin-cli:[(compare) (stderr) (shell)]: bitcoin-cli.o
 	$(LINK) -o $@ $^ -L. $(LDFLAGS) $(clilibs)
 
 link-cli:[(cd) ((bin objects)) (compare bin) (stdout) (stderr) (shell)]: $objects
-	$(LINK) -o $bin $objects -L$. $(LDFLAGS) $(clilibs)
+	$(LINK) -o $bin $objects -L$/ $(LDFLAGS) $(clilibs)
