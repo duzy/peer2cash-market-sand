@@ -29,6 +29,8 @@ public:
 static const CRPCConvertParam vRPCConvertParams[] =
 {
     { "setmocktime", 0, "timestamp" },
+    { "setgenerate", 0, "gen" },
+    { "setgenerate", 1, "gen" },
     { "generate", 0, "nblocks" },
     { "generate", 1, "maxtries" },
     { "generatetoaddress", 0, "nblocks" },

@@ -20,6 +20,8 @@ class CScript;
 
 namespace Consensus { struct Params; };
 
+static const int DEFAULT_GENERATE_THREADS = 1;
+static const bool DEFAULT_GENERATE = false;
 static const bool DEFAULT_PRINTPRIORITY = false;
 
 struct CBlockTemplate
@@ -169,6 +171,11 @@ public:
 
     /** Construct a new block template with coinbase to scriptPubKeyIn */
     std::unique_ptr<CBlockTemplate> CreateNewBlock(const CScript& scriptPubKeyIn, bool fMineWitnessTx=true);
+
+    bool ProcessBlockFound(const std::shared_ptr<const CBlock> &pblock);
+    void BitcoinMiner(const std::shared_ptr<CReserveScript> &coinbaseScript);
+    /** Run the miner threads */
+    void GenerateBitcoins(bool fGenerate, int nThreads, const std::shared_ptr<CReserveScript> &coinbaseScript);
 
 private:
     // utility functions

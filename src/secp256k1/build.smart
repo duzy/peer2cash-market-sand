@@ -1,11 +1,10 @@
 project (tools/gcc/c)
 
-files (
-    #'*.a'
-    #'*.o' => src
-    #'*.h' => src
-    #'*.c' => src
-)
+#files (
+#    '*.o' => src
+#    '*.h' => src
+#    '*.c' => src
+#)
 
 CFLAGS += $(@.variant_cflags)
 CFLAGS += -DHAVE_CONFIG_H
