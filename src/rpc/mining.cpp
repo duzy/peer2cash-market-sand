@@ -20,6 +20,8 @@
 #include "rpc/blockchain.h"
 #include "rpc/mining.h"
 #include "rpc/server.h"
+#include "wallet/wallet.h"
+#include "wallet/rpcwallet.h"
 #include "txmempool.h"
 #include "util.h"
 #include "utilstrencodings.h"
@@ -209,8 +211,6 @@ UniValue setgenerate(const JSONRPCRequest& request)
             fGenerate = false;
     }
 
-    //mapArgs["-gen"] = (fGenerate ? "1" : "0");
-    //mapArgs ["-genproclimit"] = itostr(nGenProcLimit);
     gArgs.ForceSetArg("-gen", (fGenerate ? "1" : "0"));
     gArgs.ForceSetArg("-genproclimit", itostr(nGenProcLimit));
 
