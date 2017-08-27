@@ -19,10 +19,47 @@
 #include "httpserver.h"
 #include "httprpc.h"
 #include "utilstrencodings.h"
+#include "validationinterface.h"
 
 #include <boost/thread.hpp>
 
 #include <stdio.h>
+
+namespace 
+{
+  // This observer is now only for watching validation.
+  class ValidationObserver : public CValidationInterface
+  {
+    void TransactionAddedToMempool(const CTransactionRef &ptxn) override;
+    void BlockChecked(const CBlock&, const CValidationState&) override;
+    void BlockConnected(const std::shared_ptr<const CBlock> &block, const CBlockIndex *pindex, const std::vector<CTransactionRef> &txnConflicted) override;
+    void BlockDisconnected(const std::shared_ptr<const CBlock> &block) override;
+  };
+};
+
+static std::unique_ptr<ValidationObserver> gvo(new ValidationObserver());
+
+void ValidationObserver::TransactionAddedToMempool(const CTransactionRef &ptx)
+{
+  uint256 h = ptx->GetHash();
+  LogPrintf("p2c: accepted: %s\n", h.ToString());
+}
+
+void ValidationObserver::BlockChecked(const CBlock &block, const CValidationState &state)
+{
+  uint256 h = block.GetHash();
+  LogPrintf("p2c: checked: %s\n", h.ToString());
+}
+
+void ValidationObserver::BlockConnected(const std::shared_ptr<const CBlock> &block, const CBlockIndex *pindex, const std::vector<CTransactionRef> &txnConflicted)
+{
+  uint256 h = block->GetHash();
+  LogPrintf("p2c: connected: %s\n", h.ToString());
+}
+
+void ValidationObserver::BlockDisconnected(const std::shared_ptr<const CBlock> &block)
+{
+}
 
 /* Introduction text for doxygen: */
 
@@ -178,6 +215,7 @@ bool AppInit(int argc, char* argv[])
         Interrupt(threadGroup);
         threadGroup.join_all();
     } else {
+        RegisterValidationInterface(gvo.get());
         WaitForShutdown(&threadGroup);
     }
     Shutdown();

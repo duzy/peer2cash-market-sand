@@ -5,8 +5,11 @@ import (
     './univalue'
     './secp256k1'
     './leveldb'
-    './leveldb/helpers/memenv'  
+    './leveldb/helpers/memenv'
+    'libzmq'
 )
+
+top := $(ndir 3,$/)
 
 CXXFLAGS += $(@.variant_cflags)
 CXXFLAGS += -DHAVE_CONFIG_H
@@ -19,7 +22,8 @@ archives: use.* \
   libbitcoin_server.a \
   libbitcoin_util.a \
   libbitcoin_wallet.a \
-  libbitcoin_cli.a
+  libbitcoin_cli.a \
+  libbitcoin_zmq.a
 
 programs: \
   bitcoin-cli \

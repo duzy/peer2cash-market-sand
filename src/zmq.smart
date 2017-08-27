@@ -1,0 +1,9 @@
+project
+
+zmq_lib := libbitcoin_zmq.a
+zmq_objects := \
+    zmq/zmqabstractnotifier.o \
+    zmq/zmqnotificationinterface.o \
+    zmq/zmqpublishnotifier.o
+
+$(zmq_lib): lib.a($(zmq_lib) $(zmq_objects))
