@@ -1,0 +1,7 @@
+project
+
+trade_lib := libbitcoin_trade.a
+trade_objects := \
+    trade/traderecord.o
+
+$(trade_lib): lib.a($(trade_lib) $(trade_objects))

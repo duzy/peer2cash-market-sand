@@ -151,6 +151,8 @@ void CZMQNotificationInterface::TransactionAddedToMempool(const CTransactionRef&
     // all the same external callback.
     const CTransaction& tx = *ptx;
 
+    LogPrint(BCLog::ZMQ, "zmq: Accepted %s\n", tx.GetHash().ToString());
+
     for (std::list<CZMQAbstractNotifier*>::iterator i = notifiers.begin(); i!=notifiers.end(); )
     {
         CZMQAbstractNotifier *notifier = *i;
@@ -168,6 +170,7 @@ void CZMQNotificationInterface::TransactionAddedToMempool(const CTransactionRef&
 
 void CZMQNotificationInterface::BlockConnected(const std::shared_ptr<const CBlock>& pblock, const CBlockIndex* pindexConnected, const std::vector<CTransactionRef>& vtxConflicted)
 {
+    LogPrint(BCLog::ZMQ, "zmq: Connected %s\n", pblock->GetHash().ToString());
     for (const CTransactionRef& ptx : pblock->vtx) {
         // Do a normal notify for each transaction added in the block
         TransactionAddedToMempool(ptx);
@@ -176,6 +179,7 @@ void CZMQNotificationInterface::BlockConnected(const std::shared_ptr<const CBloc
 
 void CZMQNotificationInterface::BlockDisconnected(const std::shared_ptr<const CBlock>& pblock)
 {
+    LogPrint(BCLog::ZMQ, "zmq: Disconnected %s\n", pblock->GetHash().ToString());
     for (const CTransactionRef& ptx : pblock->vtx) {
         // Do a normal notify for each transaction removed in block disconnection
         TransactionAddedToMempool(ptx);

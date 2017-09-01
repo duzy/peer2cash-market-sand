@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2010 Satoshi Nakamoto
+// Copyright (c) 2009-2010 Satoshi Nakamoto                                 -*- c++ -*-
 // Copyright (c) 2009-2016 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -172,6 +172,22 @@ public:
     }
 
     std::string ToString() const;
+};
+
+class CTradeOfferPoint
+{
+  CTxOut vout;
+
+public:
+  CTradeOfferPoint();
+  explicit CTradeOfferPoint(const CTxOut &vout);
+
+  ADD_SERIALIZE_METHODS;
+  
+  template <typename Stream, typename Operation>
+  inline void SerializationOp(Stream& s, Operation ser_action) {
+    READWRITE(vout);
+  }
 };
 
 struct CMutableTransaction;
@@ -356,6 +372,10 @@ public:
         }
         return false;
     }
+
+    std::vector<CTradeOfferPoint> GetAskOffer() const;
+    std::vector<CTradeOfferPoint> GetBidOffer() const;
+    bool IsTradeOffer() const;
 };
 
 /** A mutable version of CTransaction. */

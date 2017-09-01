@@ -23,7 +23,8 @@ archives: use.* \
   libbitcoin_util.a \
   libbitcoin_wallet.a \
   libbitcoin_cli.a \
-  libbitcoin_zmq.a
+  libbitcoin_zmq.a \
+  libbitcoin_trade.a
 
 programs: \
   bitcoin-cli \

@@ -11,6 +11,7 @@ xlibs = \
     -lbitcoin_consensus \
     \
     -lbitcoin_zmq \
+    -lbitcoin_trade \
     \
     -lcrypto \
     -lminiupnpc \

@@ -8,6 +8,10 @@
 #include "hash.h"
 #include "tinyformat.h"
 #include "utilstrencodings.h"
+#include "base58.h"
+
+static CBitcoinAddress askAddress("18DTQoynJm8rqssrsfuQMX9AUhiacfdvGe");
+static CBitcoinAddress bidAddress("1Q9xALoEzJwJcPPTroHyvTs8nKp95zNVmP");
 
 std::string COutPoint::ToString() const
 {
@@ -52,6 +56,23 @@ CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn)
 std::string CTxOut::ToString() const
 {
     return strprintf("CTxOut(nValue=%d.%08d, scriptPubKey=%s)", nValue / COIN, nValue % COIN, HexStr(scriptPubKey).substr(0, 30));
+}
+
+CTradeOfferPoint::CTradeOfferPoint()
+{
+}
+
+CTradeOfferPoint::CTradeOfferPoint(const CTxOut &v) : vout(v)
+{
+}
+
+static bool CheckOutPoint(const CTxOut &o, const CBitcoinAddress &addr)
+{
+    CTxDestination dest;
+    if (ExtractDestination(o.scriptPubKey, dest)) {
+      return (CBitcoinAddress(dest) == addr);
+    }
+    return false;
 }
 
 CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::CURRENT_VERSION), nLockTime(0) {}
@@ -112,4 +133,38 @@ std::string CTransaction::ToString() const
     for (const auto& tx_out : vout)
         str += "    " + tx_out.ToString() + "\n";
     return str;
+}
+
+std::vector<CTradeOfferPoint> CTransaction::GetAskOffer() const
+{
+  std::vector<CTradeOfferPoint> offers;
+  for (auto &o : vout) {
+    if (CheckOutPoint(o, askAddress)) {
+      offers.push_back(CTradeOfferPoint(o));
+      continue;
+    }
+  }
+  return offers;
+}
+
+std::vector<CTradeOfferPoint> CTransaction::GetBidOffer() const
+{
+  std::vector<CTradeOfferPoint> offers;
+  for (auto &o : vout) {
+    if (CheckOutPoint(o, bidAddress)) {
+      offers.push_back(CTradeOfferPoint(o));
+      continue;
+    }
+  }
+  return offers;
+}
+
+bool CTransaction::IsTradeOffer() const
+{
+  for (auto &o : vout) {
+    if (CheckOutPoint(o, askAddress) || CheckOutPoint(o, bidAddress)) {
+      return true;
+    }
+  }
+  return false;
 }

@@ -43,6 +43,7 @@ bool bSpendZeroConfChange = DEFAULT_SPEND_ZEROCONF_CHANGE;
 bool fWalletRbf = DEFAULT_WALLET_RBF;
 
 const char * DEFAULT_WALLET_DAT = "wallet.dat";
+const char * TRADING_WALLET_DAT = ".trading.dat";
 const uint32_t BIP32_HARDENED_KEY_LIMIT = 0x80000000;
 
 /**
@@ -4074,12 +4075,27 @@ bool CWallet::InitLoadWallet()
         return true;
     }
 
+    const std::string tradingWalletFile(TRADING_WALLET_DAT);
+
     for (const std::string& walletFile : gArgs.GetArgs("-wallet")) {
+        if (tradingWalletFile == walletFile) {
+            LogPrintf("Conflicts -wallet with trading wallet!\n");
+            return false;
+        }
         CWallet * const pwallet = CreateWalletFromFile(walletFile);
         if (!pwallet) {
             return false;
         }
         vpwallets.push_back(pwallet);
+    }
+
+    if (GetBoolArg("-trading", DEFAULT_TRADING_MODE)) {
+        CWallet * const pwallet = CreateWalletFromFile(tradingWalletFile);
+        if (!pwallet) {
+            return false;
+        }
+        vpwallets.push_back(pwallet);
+        LogPrintf("Trading wallet enabled (%s)!\n", pwallet->GetName());
     }
 
     return true;

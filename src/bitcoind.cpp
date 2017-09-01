@@ -20,6 +20,7 @@
 #include "httprpc.h"
 #include "utilstrencodings.h"
 #include "validationinterface.h"
+#include "chain.h"
 
 #include <boost/thread.hpp>
 
@@ -34,6 +35,7 @@ namespace
     void BlockChecked(const CBlock&, const CValidationState&) override;
     void BlockConnected(const std::shared_ptr<const CBlock> &block, const CBlockIndex *pindex, const std::vector<CTransactionRef> &txnConflicted) override;
     void BlockDisconnected(const std::shared_ptr<const CBlock> &block) override;
+    void UpdatedBlockTip(const CBlockIndex *pindexNew, const CBlockIndex *pindexFork, bool fInitialDownload);
   };
 };
 
@@ -59,6 +61,18 @@ void ValidationObserver::BlockConnected(const std::shared_ptr<const CBlock> &blo
 
 void ValidationObserver::BlockDisconnected(const std::shared_ptr<const CBlock> &block)
 {
+  uint256 h = block->GetHash();
+  LogPrintf("p2c: disconnected: %s\n", h.ToString());
+}
+
+void ValidationObserver::UpdatedBlockTip(const CBlockIndex *pindexNew, const CBlockIndex *pindexFork, bool fInitialDownload)
+{
+  uint256 h1 = pindexNew->GetBlockHash();
+  uint256 h2;
+  if (pindexFork) {
+    h2 = pindexFork->GetBlockHash();
+  }
+  LogPrintf("p2c: updated: %s (%s)\n", h1.ToString(), h2.ToString());
 }
 
 /* Introduction text for doxygen: */
