@@ -1,4 +1,4 @@
-project core
+project prebuilt
 
 files '*.a' '*.o'
 
