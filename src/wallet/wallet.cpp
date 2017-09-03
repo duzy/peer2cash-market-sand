@@ -43,7 +43,8 @@ bool bSpendZeroConfChange = DEFAULT_SPEND_ZEROCONF_CHANGE;
 bool fWalletRbf = DEFAULT_WALLET_RBF;
 
 const char * DEFAULT_WALLET_DAT = "wallet.dat";
-const char * TRADING_WALLET_DAT = ".trading.dat";
+const char * TRADASK_WALLET_DAT = ".trading.ask.dat";
+const char * TRADBID_WALLET_DAT = ".trading.bid.dat";
 const uint32_t BIP32_HARDENED_KEY_LIMIT = 0x80000000;
 
 /**
@@ -4075,10 +4076,11 @@ bool CWallet::InitLoadWallet()
         return true;
     }
 
-    const std::string tradingWalletFile(TRADING_WALLET_DAT);
+    const std::string tradingAskWalletFile(TRADASK_WALLET_DAT);
+    const std::string tradingBidWalletFile(TRADBID_WALLET_DAT);
 
     for (const std::string& walletFile : gArgs.GetArgs("-wallet")) {
-        if (tradingWalletFile == walletFile) {
+        if (tradingAskWalletFile == walletFile || tradingBidWalletFile == walletFile) {
             LogPrintf("Conflicts -wallet with trading wallet!\n");
             return false;
         }
@@ -4090,12 +4092,14 @@ bool CWallet::InitLoadWallet()
     }
 
     if (GetBoolArg("-trading", DEFAULT_TRADING_MODE)) {
-        CWallet * const pwallet = CreateWalletFromFile(tradingWalletFile);
-        if (!pwallet) {
+        CWallet * const pwalletAsk = CreateWalletFromFile(tradingAskWalletFile);
+        CWallet * const pwalletBid = CreateWalletFromFile(tradingBidWalletFile);
+        if (!pwalletAsk || !pwalletBid) {
             return false;
         }
-        vpwallets.push_back(pwallet);
-        LogPrintf("Trading wallet enabled (%s)!\n", pwallet->GetName());
+        vpwallets.push_back(pwalletAsk);
+        vpwallets.push_back(pwalletBid);
+        LogPrintf("Trading wallet enabled (%s, %s)!\n", pwalletAsk->GetName(), pwalletBid->GetName());
     }
 
     return true;

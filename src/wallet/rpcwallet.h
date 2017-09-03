@@ -1,4 +1,4 @@
-// Copyright (c) 2016 The Bitcoin Core developers
+// Copyright (c) 2016 The Bitcoin Core developers                           -*- c++ -*-
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,13 +10,17 @@ class JSONRPCRequest;
 
 void RegisterWalletRPCCommands(CRPCTable &t);
 
+enum class WalletPurpose {
+  Default, TradeAsk, TradeBid
+};
+
 /**
  * Figures out what wallet, if any, to use for a JSONRPCRequest.
  *
  * @param[in] request JSONRPCRequest that wishes to access a wallet
  * @return NULL if no wallet should be used, or a pointer to the CWallet
  */
-CWallet *GetWalletForJSONRPCRequest(const JSONRPCRequest& request);
+CWallet *GetWalletForJSONRPCRequest(const JSONRPCRequest& request, WalletPurpose purpose = WalletPurpose::Default);
 
 std::string HelpRequiringPassphrase(CWallet *);
 void EnsureWalletIsUnlocked(CWallet *);
