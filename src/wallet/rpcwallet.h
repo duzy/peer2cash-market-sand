@@ -10,10 +10,6 @@ class JSONRPCRequest;
 
 void RegisterWalletRPCCommands(CRPCTable &t);
 
-enum class WalletPurpose {
-  Default, TradeAsk, TradeBid
-};
-
 /**
  * Figures out what wallet, if any, to use for a JSONRPCRequest.
  *
