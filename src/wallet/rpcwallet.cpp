@@ -49,10 +49,10 @@ CWallet *GetWalletForJSONRPCRequest(const JSONRPCRequest& request, WalletPurpose
     if (numWallets >= 3 && (purpose == WalletPurpose::TradeAsk || purpose == WalletPurpose::TradeBid)
         && ::vpwallets[numWallets-2]->GetName() == TRADASK_WALLET_DAT
         && ::vpwallets[numWallets-1]->GetName() == TRADBID_WALLET_DAT) {
-      switch (purpose) {
-      case WalletPurpose::TradeAsk: return ::vpwallets[numWallets-2];
-      case WalletPurpose::TradeBid: return ::vpwallets[numWallets-1];
-      }
+        switch (purpose) {
+        case WalletPurpose::TradeAsk: return ::vpwallets[numWallets-2];
+        case WalletPurpose::TradeBid: return ::vpwallets[numWallets-1];
+        }
     }
     return numWallets == 1 || (request.fHelp && numWallets > 0) ? ::vpwallets[0] : nullptr;
 }
@@ -1685,6 +1685,85 @@ UniValue listtransactions(const JSONRPCRequest& request)
     ret.push_backV(arrTmp);
 
     return ret;
+}
+
+UniValue listWalletAddresses(CWallet * const pwallet, const JSONRPCRequest& request)
+{
+    LOCK2(cs_main, pwallet->cs_wallet);
+    UniValue ret(UniValue::VARR);
+    auto as = pwallet->GetAccountAddresses("");
+    for (auto &a : as) {
+        ret.push_back(CBitcoinAddress(a).ToString());
+    }
+    return ret;
+}
+
+UniValue listaskaddresses(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request, WalletPurpose::TradeAsk);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+    if (request.fHelp || request.params.size() > 4)
+        throw std::runtime_error(
+            "listaskaddresses (count skip include_watchonly)\n"
+            "\nReturns up to 'count' most recent transactions skipping the first 'from' transactions for account 'account'.\n"
+            "\nArguments:\n"
+            "2. count          (numeric, optional, default=10) The number of transactions to return\n"
+            "3. skip           (numeric, optional, default=0) The number of transactions to skip\n"
+            "4. include_watchonly (bool, optional, default=false) Include transactions to watch-only addresses (see 'importaddress')\n"
+            "\nResult:\n"
+            "[\n"
+            "  {\n"
+            "    \"abandoned\": xxx          (bool) 'true' if the transaction has been abandoned (inputs are respendable). Only available for the \n"
+            "                                         'send' category of transactions.\n"
+            "  }\n"
+            "]\n"
+
+            "\nExamples:\n"
+            "\nList the most recent 10 transactions in the systems\n"
+            + HelpExampleCli("listaskaddresses", "") +
+            "\nList transactions 100 to 120\n"
+            + HelpExampleCli("listaskaddresses", "20 100") +
+            "\nAs a json rpc call\n"
+            + HelpExampleRpc("listaskaddresses", "20, 100")
+        );
+    
+    return listWalletAddresses(pwallet, request);
+}
+
+UniValue listbidaddresses(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request, WalletPurpose::TradeBid);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+    if (request.fHelp || request.params.size() > 4)
+        throw std::runtime_error(
+            "listbidaddresses (count skip include_watchonly)\n"
+            "\nReturns up to 'count' most recent transactions skipping the first 'from' transactions for account 'account'.\n"
+            "\nArguments:\n"
+            "2. count          (numeric, optional, default=10) The number of transactions to return\n"
+            "3. skip           (numeric, optional, default=0) The number of transactions to skip\n"
+            "4. include_watchonly (bool, optional, default=false) Include transactions to watch-only addresses (see 'importaddress')\n"
+            "\nResult:\n"
+            "[\n"
+            "  {\n"
+            "    \"abandoned\": xxx          (bool) 'true' if the transaction has been abandoned (inputs are respendable). Only available for the \n"
+            "                                         'send' category of transactions.\n"
+            "  }\n"
+            "]\n"
+
+            "\nExamples:\n"
+            "\nList the most recent 10 transactions in the systems\n"
+            + HelpExampleCli("listbidaddresses", "") +
+            "\nList transactions 100 to 120\n"
+            + HelpExampleCli("listbidaddresses", "20 100") +
+            "\nAs a json rpc call\n"
+            + HelpExampleRpc("listbidaddresses", "20, 100")
+        );
+
+    return listWalletAddresses(pwallet, request);
 }
 
 UniValue listasks(const JSONRPCRequest& request)
@@ -3532,6 +3611,8 @@ static const CRPCCommand commands[] =
     { "wallet",             "removeprunedfunds",        &removeprunedfunds,        true,   {"txid"} },
 
     { "trading",            "gettradinginfo",           &gettradinginfo,           false,  {} },
+    { "trading",            "listaskaddresses",         &listaskaddresses,         false,  {"count","skip","include_watchonly"} },
+    { "trading",            "listbidaddresses",         &listbidaddresses,         false,  {"count","skip","include_watchonly"} },
     { "trading",            "listasks",                 &listasks,                 false,  {"count","skip","include_watchonly"} },
     { "trading",            "listbids",                 &listbids,                 false,  {"count","skip","include_watchonly"} },
 
