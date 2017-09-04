@@ -1,9 +1,6 @@
 project (tools/gcc/c)
 
 files (
-#    '*.o' => src
-#    '*.h' => src
-#    '*.c' => src
     gen_context
 )
 
@@ -19,10 +16,10 @@ objects2 := src/asm/field_10x26_arm.o
 $(lib1): src/ecmult_static_context.h c.'lib.a'($(lib1) $(objects1))
 $(lib2): c.'lib.a'($(lib2) $(objects2))
 
-src/ecmult_static_context.h:[(stderr) (stdout) (shell)]: gen_context
+src/ecmult_static_context.h:[(compare) (stderr) (stdout) (shell)]: gen_context
 	./gen_context
 
-gen_context:[(stderr) (stdout) (shell)]: src/gen_context.c
+gen_context:[(compare) (stderr) (stdout) (shell)]: src/gen_context.c
 	$(CXX) -I$/ -o $@ $^
 
 clean:[(stderr) (stdout) (shell)]
