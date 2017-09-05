@@ -36,6 +36,8 @@ protected:
     virtual void UpdatedBlockTip(const CBlockIndex *pindexNew, const CBlockIndex *pindexFork, bool fInitialDownload) {}
     /** Notifies listeners of a transaction having been added to mempool. */
     virtual void TransactionAddedToMempool(const CTransactionRef &ptxn) {}
+    /** Notifies listeners of a transaction status having been changed. */
+    virtual void TransactionChanged(const CTransaction &transaction) {}
     /**
      * Notifies listeners of a block being connected.
      * Provides a vector of transactions evicted from the mempool as a result.

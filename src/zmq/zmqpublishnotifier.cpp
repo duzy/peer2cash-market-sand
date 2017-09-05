@@ -197,7 +197,7 @@ bool CZMQPublishRawTransactionNotifier::NotifyTransaction(const CTransaction &tr
     return SendMessage(MSG_RAWTX, &(*ss.begin()), ss.size());
 }
 
-bool CZMQPublishOfferNotifier::NotifyTransaction(const CTransaction &transaction)
+bool CZMQPublishOfferNotifier::NotifyTransactionChanged(const CTransaction &transaction)
 {
     auto hash = transaction.GetHash();
     auto asks = transaction.GetAskOffer();

@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 The Bitcoin Core developers
+// Copyright (c) 2015-2016 The Bitcoin Core developers                   -*- c++ -*-
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -55,7 +55,7 @@ public:
 class CZMQPublishOfferNotifier : public CZMQAbstractPublishNotifier
 {
 public:
-    bool NotifyTransaction(const CTransaction &transaction) override;
+    bool NotifyTransactionChanged(const CTransaction &transaction) override;
 };
 
 #endif // BITCOIN_ZMQ_ZMQPUBLISHNOTIFIER_H

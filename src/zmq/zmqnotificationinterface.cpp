@@ -168,6 +168,23 @@ void CZMQNotificationInterface::TransactionAddedToMempool(const CTransactionRef&
     }
 }
 
+void CZMQNotificationInterface::TransactionChanged(const CTransaction &tx)
+{
+    for (std::list<CZMQAbstractNotifier*>::iterator i = notifiers.begin(); i!=notifiers.end(); )
+    {
+        auto notifier = *i;
+        if (notifier->NotifyTransactionChanged(tx))
+        {
+            i++;
+        }
+        else
+        {
+            notifier->Shutdown();
+            i = notifiers.erase(i);
+        }
+    }
+}
+
 void CZMQNotificationInterface::BlockConnected(const std::shared_ptr<const CBlock>& pblock, const CBlockIndex* pindexConnected, const std::vector<CTransactionRef>& vtxConflicted)
 {
     LogPrint(BCLog::ZMQ, "zmq: Connected %s\n", pblock->GetHash().ToString());

@@ -9,6 +9,10 @@ import (
     'libzmq'
 )
 
+files (
+    '*.lo' '*.la'
+)
+
 top := $(ndir 3,$/)
 
 CXXFLAGS += $(@.variant_cflags)
@@ -33,13 +37,19 @@ programs: \
 
 objects:[(stderr) (shell)]: bitcoind.o
 
-clean:[(stderr) (stdout) (shell)]: \
+clean: \
   crypto.clean \
   univalue.clean \
   secp256k1.clean \
   leveldb.clean \
   memenv.clean
-	@echo "clean: $." && rm -vf *.o *.a *.lo *.la \
-	script/*.o consensus/*.o primitives/.o policy/.o \
-	rpc/*.o support/*.o wallet/*.o \
-	bitcoin-cli bitcoin-tx bitcoind
+	println "clean: $."
+	remove '*.o' '*.a' '*.lo' '*.la' \
+	  'script/*.o' \
+	  'consensus/*.o' \
+	  'primitives/*.o' \
+	  'policy/*.o' \
+	  'rpc/*.o' \
+	  'support/*.o' \
+	  'wallet/*.o' \
+	  bitcoin-cli bitcoin-tx bitcoind
