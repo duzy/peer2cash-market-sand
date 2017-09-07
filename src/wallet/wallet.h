@@ -103,11 +103,6 @@ enum WalletFeature
     FEATURE_LATEST = FEATURE_COMPRPUBKEY // HD is optional, use FEATURE_COMPRPUBKEY as latest version
 };
 
-/** (client) enum class for particular wallet purposes */
-enum class WalletPurpose {
-  Default, TradeAsk, TradeBid
-};
-
 /** A key pool entry */
 class CKeyPool
 {

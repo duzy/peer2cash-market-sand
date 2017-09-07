@@ -44,12 +44,12 @@ clean: \
   leveldb.clean \
   memenv.clean
 	println "clean: $."
-	remove '*.o' '*.a' '*.lo' '*.la' \
-	  'script/*.o' \
-	  'consensus/*.o' \
-	  'primitives/*.o' \
-	  'policy/*.o' \
-	  'rpc/*.o' \
-	  'support/*.o' \
-	  'wallet/*.o' \
+	remove *.o *.a *.lo *.la \
+	  script/*.o \
+	  consensus/*.o \
+	  primitives/*.o \
+	  policy/*.o \
+	  rpc/*.o \
+	  support/*.o \
+	  wallet/*.o \
 	  bitcoin-cli bitcoin-tx bitcoind
