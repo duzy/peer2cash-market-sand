@@ -741,7 +741,9 @@ static void NotifyTransactionChanged(TransactionTableModel *ttm, CWallet *wallet
 {
     // Find transaction in wallet
     std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(hash);
+#if 0
     GetMainSignals().TransactionChanged(mi->second);
+#endif
 
     // Determine whether to show transaction or not (determine this here so that no relocking is needed in GUI thread)
     bool inWallet = mi != wallet->mapWallet.end();

@@ -9,8 +9,9 @@ objects := memenv.o
 
 $(lib): lib.a($(lib) $(objects))
 
-clean:[(stderr) (stdout) (shell)]
-	@echo "clean: $." && rm -vf *.a *.o
+clean:
+	println "clean: $."
+	remove *.a *.o
 
 use:
 	CXXFLAGS += -I"$/"

@@ -1,7 +1,7 @@
 project (tools/gcc/c++)
 
 files (
-    '*.a'
+    '*.a' '*.lo' '*.la'
     #'*.o' => lib
     #'*.cpp' => lib
 )
@@ -21,4 +21,4 @@ use:
 
 clean:
 	println "clean: $."
-	remove-all $(lib) $(objects) '*.lo' '*.la' '.libs/*' 'lib/.deps/*'
+	remove-all $(lib) $(objects) *.lo *.la .libs/* lib/.deps/*

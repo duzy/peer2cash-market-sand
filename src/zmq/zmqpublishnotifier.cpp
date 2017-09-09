@@ -200,13 +200,14 @@ bool CZMQPublishRawTransactionNotifier::NotifyTransaction(const CTransaction &tr
 bool CZMQPublishOfferNotifier::NotifyTransactionChanged(const CTransaction &transaction)
 {
     auto hash = transaction.GetHash();
+    /*
     auto asks = transaction.GetAskOffer();
     auto bids = transaction.GetBidOffer();
     if (asks.empty() && bids.empty()) {
       return false;
-    }
+    } */
     LogPrint(BCLog::ZMQ, "zmq: Publish offer %s\n", hash.GetHex());
     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION | RPCSerializationFlags());
-    ss << hash << asks << bids ;
+    ss << hash /*<< asks << bids*/ ;
     return SendMessage(MSG_OFFER, &(*ss.begin()), ss.size());
 }

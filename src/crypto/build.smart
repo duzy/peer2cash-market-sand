@@ -1,5 +1,9 @@
 project (tools/gcc/c++)
 
+files (
+    '*.lo' '*.la'
+)
+
 CXXFLAGS += $(@.variant_cflags)
 CXXFLAGS += -DHAVE_CONFIG_H
 CXXFLAGS += -I"$(dir $/)" -I"$(dir $/)/config"
@@ -17,4 +21,4 @@ use:
 
 clean:
 	println "clean: $."
-	remove-all $(lib) $(objects) '*.lo' '*.la' '.libs/*' '.deps/*'
+	remove-all $(lib) $(objects) *.lo *.la .libs/* .deps/*

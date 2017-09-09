@@ -54,7 +54,7 @@ CWallet *GetWalletForJSONRPCRequest(const JSONRPCRequest& request, WalletPurpose
         case WalletPurpose::TradeBid: return ::vpwallets[numWallets-1];
         }
     }
-    return numWallets == 1 || (request.fHelp && numWallets > 0) ? ::vpwallets[0] : nullptr;
+    return numWallets > 0 || (request.fHelp && numWallets > 0) ? ::vpwallets[0] : nullptr;
 }
 
 std::string HelpRequiringPassphrase(CWallet * const pwallet)
@@ -1460,7 +1460,7 @@ static void MaybePushAddress(UniValue & entry, const CTxDestination &dest)
  * @param  ret        The UniValue into which the result is stored.
  * @param  filter     The "is mine" filter bool.
  */
-void ListTransactions(CWallet* const pwallet, const CWalletTx& wtx, const std::string& strAccount, int nMinDepth, bool fLong, UniValue& ret, const isminefilter& filter, WalletPurpose purpose = WalletPurpose::Default)
+void ListTransactions(CWallet* const pwallet, const CWalletTx& wtx, const std::string& strAccount, int nMinDepth, bool fLong, UniValue& ret, const isminefilter& filter, WalletPurpose purpose)
 {
     CAmount nFee;
     std::string strSentAccount;
@@ -1656,7 +1656,7 @@ UniValue listtransactions(const JSONRPCRequest& request)
     {
         CWalletTx *const pwtx = (*it).second.first;
         if (pwtx != 0)
-            ListTransactions(pwallet, *pwtx, strAccount, 0, true, ret, filter);
+            ListTransactions(pwallet, *pwtx, strAccount, 0, true, ret, filter, WalletPurpose::Default);
         CAccountingEntry *const pacentry = (*it).second.second;
         if (pacentry != 0)
             AcentryToJSON(*pacentry, strAccount, ret);
@@ -2156,7 +2156,7 @@ UniValue listsinceblock(const JSONRPCRequest& request)
         CWalletTx tx = pairWtx.second;
 
         if (depth == -1 || tx.GetDepthInMainChain() < depth) {
-            ListTransactions(pwallet, tx, "*", 0, true, transactions, filter);
+            ListTransactions(pwallet, tx, "*", 0, true, transactions, filter, WalletPurpose::Default);
         }
     }
 
@@ -2172,7 +2172,7 @@ UniValue listsinceblock(const JSONRPCRequest& request)
             if (pwallet->mapWallet.count(tx->GetHash()) > 0) {
                 // We want all transactions regardless of confirmation count to appear here,
                 // even negative confirmation ones, hence the big negative.
-                ListTransactions(pwallet, pwallet->mapWallet[tx->GetHash()], "*", -100000000, true, removed, filter);
+                ListTransactions(pwallet, pwallet->mapWallet[tx->GetHash()], "*", -100000000, true, removed, filter, WalletPurpose::Default);
             }
         }
         paltindex = paltindex->pprev;
@@ -2269,7 +2269,7 @@ UniValue gettransaction(const JSONRPCRequest& request)
     WalletTxToJSON(wtx, entry);
 
     UniValue details(UniValue::VARR);
-    ListTransactions(pwallet, wtx, "*", 0, false, details, filter);
+    ListTransactions(pwallet, wtx, "*", 0, false, details, filter, WalletPurpose::Default);
     entry.push_back(Pair("details", details));
 
     std::string strHex = EncodeHexTx(static_cast<CTransaction>(wtx), RPCSerializationFlags());
@@ -2870,7 +2870,7 @@ UniValue gettradinginfo(const JSONRPCRequest& request)
     if (!EnsureWalletIsAvailable(pwalletAsk, request.fHelp)) {
         return NullUniValue;
     }
-    if (!EnsureWalletIsAvailable(pwalletBid, request.fHelp)) {
+    if (pwalletAsk != pwalletBid && !EnsureWalletIsAvailable(pwalletBid, request.fHelp)) {
         return NullUniValue;
     }
 
@@ -2899,7 +2899,9 @@ UniValue gettradinginfo(const JSONRPCRequest& request)
 
     UniValue obj(UniValue::VARR);
     obj.push_back(gettradinginfo(pwalletAsk, request));
-    obj.push_back(gettradinginfo(pwalletBid, request));
+    if (pwalletAsk != pwalletBid) {
+        obj.push_back(gettradinginfo(pwalletBid, request));
+    }
     return obj;
 }
 

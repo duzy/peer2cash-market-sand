@@ -2,6 +2,8 @@ project (tools/gcc/c)
 
 files (
     gen_context
+    '*.la'
+    '*.lo'
 )
 
 CFLAGS += $(@.variant_cflags)
@@ -22,9 +24,9 @@ src/ecmult_static_context.h:[(compare) (stderr) (stdout) (shell)]: gen_context
 gen_context:[(compare) (stderr) (stdout) (shell)]: src/gen_context.c
 	$(CXX) -I$/ -o $@ $^
 
-clean:[(stderr) (stdout) (shell)]
-	@echo "clean: $." && rm -vf \
-	src/*.o src/asm/*.o .libs/* *.o *.a *.lo *.la
+clean:
+	println "clean: $."
+	remove src/*.o src/asm/*.o .libs/* *.o *.a *.lo *.la
 
 use:
 	CFLAGS += -I"$//include"

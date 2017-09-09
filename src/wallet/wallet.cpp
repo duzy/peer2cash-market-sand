@@ -4069,6 +4069,20 @@ CWallet* CWallet::CreateWalletFromFile(const std::string walletFile)
     return walletInstance;
 }
 
+static void NotifyOrderChanged(CWallet *wallet, WalletPurpose purpose, const uint256 &hash, ChangeType status) {
+    LogPrintf("NotifyOrderChanged: %s\n", hash.ToString());
+    std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(hash);
+    GetMainSignals().TransactionChanged(mi->second);
+}
+
+static void NotifyAskChanged(CWallet *wallet, const uint256 &hash, ChangeType status) {
+    NotifyOrderChanged(wallet, WalletPurpose::TradeAsk, hash, status);
+}
+
+static void NotifyBidChanged(CWallet *wallet, const uint256 &hash, ChangeType status) {
+    NotifyOrderChanged(wallet, WalletPurpose::TradeBid, hash, status);
+}
+
 bool CWallet::InitLoadWallet()
 {
     if (GetBoolArg("-disablewallet", DEFAULT_DISABLE_WALLET)) {
@@ -4099,6 +4113,8 @@ bool CWallet::InitLoadWallet()
         }
         vpwallets.push_back(pwalletAsk);
         vpwallets.push_back(pwalletBid);
+        pwalletAsk->NotifyTransactionChanged.connect(&NotifyAskChanged);
+        pwalletBid->NotifyTransactionChanged.connect(&NotifyBidChanged);
         LogPrintf("Trading wallet enabled (%s, %s)!\n", pwalletAsk->GetName(), pwalletBid->GetName());
     }
 

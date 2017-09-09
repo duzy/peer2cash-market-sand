@@ -49,9 +49,9 @@ objects := \
 
 $(lib): lib.a($(lib) $(objects))
 
-clean:[(stderr) (stdout) (shell)]
-	@echo "clean: $." && rm -vf *.a \
-	db/*.o port/*.o table/*.o util/*.o
+clean:
+	println "clean: $."
+	remove *.a db/*.o port/*.o table/*.o util/*.o
 
 use:
 	CXXFLAGS += -I"$//include"
