@@ -44,7 +44,7 @@ clean: \
   leveldb.clean \
   memenv.clean
 	println "clean: $."
-	remove *.o *.a *.lo *.la \
+	remove-all *.o *.a *.lo *.la .deps .libs \
 	  script/*.o \
 	  consensus/*.o \
 	  primitives/*.o \
