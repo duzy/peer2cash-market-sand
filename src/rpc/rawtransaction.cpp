@@ -419,6 +419,136 @@ UniValue createrawtransaction(const JSONRPCRequest& request)
     return EncodeHexTx(rawTx);
 }
 
+UniValue createraworder(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 4)
+        throw std::runtime_error(
+            "createraworder type [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,\"data\":\"hex\",...} ( locktime ) ( replaceable )\n"
+            "\nCreate a transaction spending the given inputs and creating new outputs.\n"
+            "Outputs can be addresses or data.\n"
+            "Returns hex-encoded raw transaction.\n"
+            "Note that the transaction's inputs are not signed, and\n"
+            "it is not stored in the wallet or transmitted to the network.\n"
+
+            "\nArguments:\n"
+            "1. \"type\"                  (string, required) Trading type, e.g. ask/bid\n"
+            "2. \"inputs\"                (array, required) A json array of json objects\n"
+            "     [\n"
+            "       {\n"
+            "         \"txid\":\"id\",    (string, required) The transaction id\n"
+            "         \"vout\":n,         (numeric, required) The output number\n"
+            "         \"sequence\":n      (numeric, optional) The sequence number\n"
+            "       } \n"
+            "       ,...\n"
+            "     ]\n"
+            "3. \"outputs\"               (object, required) a json object with outputs\n"
+            "    {\n"
+            "      \"address\": x.xxx,    (numeric or string, required) The key is the bitcoin address, the numeric value (can be string) is the " + CURRENCY_UNIT + " amount\n"
+            "      \"data\": \"hex\"      (string, required) The key is \"data\", the value is hex encoded data\n"
+            "      ,...\n"
+            "    }\n"
+            "4. locktime                  (numeric, optional, default=0) Raw locktime. Non-0 value also locktime-activates inputs\n"
+            "5. replaceable               (boolean, optional, default=false) Marks this transaction as BIP125 replaceable.\n"
+            "                             Allows this transaction to be replaced by a transaction with higher fees. If provided, it is an error if explicit sequence numbers are incompatible.\n"
+            "\nResult:\n"
+            "\"transaction\"              (string) hex string of the transaction\n"
+
+            "\nExamples:\n"
+            + HelpExampleCli("createraworder", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"address\\\":0.01}\"")
+            + HelpExampleCli("createraworder", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"data\\\":\\\"00010203\\\"}\"")
+            + HelpExampleRpc("createraworder", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"address\\\":0.01}\"")
+            + HelpExampleRpc("createraworder", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"data\\\":\\\"00010203\\\"}\"")
+        );
+
+    RPCTypeCheck(request.params, {UniValue::VARR, UniValue::VOBJ, UniValue::VNUM}, true);
+    if (request.params[0].isNull() || request.params[1].isNull())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, arguments 1 and 2 must be non-null");
+
+    UniValue inputs = request.params[0].get_array();
+    UniValue sendTo = request.params[1].get_obj();
+
+    CMutableTransaction rawTx;
+
+    if (request.params.size() > 2 && !request.params[2].isNull()) {
+        int64_t nLockTime = request.params[2].get_int64();
+        if (nLockTime < 0 || nLockTime > std::numeric_limits<uint32_t>::max())
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, locktime out of range");
+        rawTx.nLockTime = nLockTime;
+    }
+
+    bool rbfOptIn = request.params.size() > 3 ? request.params[3].isTrue() : false;
+
+    for (unsigned int idx = 0; idx < inputs.size(); idx++) {
+        const UniValue& input = inputs[idx];
+        const UniValue& o = input.get_obj();
+
+        uint256 txid = ParseHashO(o, "txid");
+
+        const UniValue& vout_v = find_value(o, "vout");
+        if (!vout_v.isNum())
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, missing vout key");
+        int nOutput = vout_v.get_int();
+        if (nOutput < 0)
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, vout must be positive");
+
+        uint32_t nSequence;
+        if (rbfOptIn) {
+            nSequence = MAX_BIP125_RBF_SEQUENCE;
+        } else if (rawTx.nLockTime) {
+            nSequence = std::numeric_limits<uint32_t>::max() - 1;
+        } else {
+            nSequence = std::numeric_limits<uint32_t>::max();
+        }
+
+        // set the sequence number if passed in the parameters object
+        const UniValue& sequenceObj = find_value(o, "sequence");
+        if (sequenceObj.isNum()) {
+            int64_t seqNr64 = sequenceObj.get_int64();
+            if (seqNr64 < 0 || seqNr64 > std::numeric_limits<uint32_t>::max()) {
+                throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, sequence number is out of range");
+            } else {
+                nSequence = (uint32_t)seqNr64;
+            }
+        }
+
+        CTxIn in(COutPoint(txid, nOutput), CScript(), nSequence);
+
+        rawTx.vin.push_back(in);
+    }
+
+    std::set<CBitcoinAddress> setAddress;
+    std::vector<std::string> addrList = sendTo.getKeys();
+    for (const std::string& name_ : addrList) {
+
+        if (name_ == "data") {
+            std::vector<unsigned char> data = ParseHexV(sendTo[name_].getValStr(),"Data");
+
+            CTxOut out(0, CScript() << OP_RETURN << data);
+            rawTx.vout.push_back(out);
+        } else {
+            CBitcoinAddress address(name_);
+            if (!address.IsValid())
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Bitcoin address: ")+name_);
+
+            if (setAddress.count(address))
+                throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, duplicated address: ")+name_);
+            setAddress.insert(address);
+
+            CScript scriptPubKey = GetScriptForDestination(address.Get());
+            CAmount nAmount = AmountFromValue(sendTo[name_]);
+
+            CTxOut out(nAmount, scriptPubKey);
+            rawTx.vout.push_back(out);
+        }
+    }
+
+    if (!request.params[3].isNull() && rbfOptIn != SignalsOptInRBF(rawTx)) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter combination: Sequence number(s) contradict replaceable option");
+    }
+
+    return EncodeHexTx(rawTx);
+}
+
 UniValue decoderawtransaction(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 1)
@@ -972,6 +1102,8 @@ static const CRPCCommand commands[] =
     { "rawtransactions",    "combinerawtransaction",  &combinerawtransaction,  true,  {"txs"} },
     { "rawtransactions",    "signrawtransaction",     &signrawtransaction,     false, {"hexstring","prevtxs","privkeys","sighashtype"} }, /* uses wallet if enabled */
 
+    { "trading",            "createraworder",         &createraworder,         true,  {"type","inputs","outputs","locktime","replaceable"} },
+    
     { "blockchain",         "gettxoutproof",          &gettxoutproof,          true,  {"txids", "blockhash"} },
     { "blockchain",         "verifytxoutproof",       &verifytxoutproof,       true,  {"proof"} },
 };

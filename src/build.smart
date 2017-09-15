@@ -35,7 +35,7 @@ programs: \
   bitcoin-tx \
   bitcoind
 
-objects:[(stderr) (shell)]: bitcoind.o
+objects: bitcoind.o
 
 clean: \
   crypto.clean \
@@ -46,10 +46,19 @@ clean: \
 	println "clean: $."
 	remove-all *.o *.a *.lo *.la .deps .libs \
 	  script/*.o \
+	  script/.deps \
 	  consensus/*.o \
+	  consensus/.deps \
 	  primitives/*.o \
+	  primitives/.deps \
 	  policy/*.o \
+	  policy/.deps \
 	  rpc/*.o \
+	  rpc/.deps \
 	  support/*.o \
+	  support/.deps \
 	  wallet/*.o \
-	  bitcoin-cli bitcoin-tx bitcoind
+	  wallet/.deps \
+	  bitcoin-cli \
+	  bitcoin-tx \
+	  bitcoind

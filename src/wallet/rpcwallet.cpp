@@ -1973,6 +1973,96 @@ UniValue listbids(const JSONRPCRequest& request)
     return listTradingTxs(pwallet, request, WalletPurpose::TradeBid);
 }
 
+UniValue ask(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request, WalletPurpose::Default);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() > 2)
+        throw std::runtime_error(
+            "ask address amount unit_price\n"
+            "\nAsk for a price of a specific amount.\n"
+            "\nArguments:\n"
+            "1. address        (numeric) The ask address of BTC\n"
+            "2. amount         (numeric) The amount number of BTC\n"
+            "3. unit_price     (numeric) The unit price of asking\n"
+            "\nResult:\n"
+            "{\n"
+            "  \"tx\": xxx,    The transaction created for this order.\n"
+            "}\n"
+
+            "\nExamples:\n"
+            "\nAsk 5000USD per unit for 10BTC\n"
+            + HelpExampleCli("ask", "10 5000")
+        );
+
+    UniValue ret(UniValue::VOBJ);
+
+    auto strAddr = request.params[0].get_str();
+    CBitcoinAddress askAddr;
+    if (strAddr.empty()) {
+        CWallet * const pwalletAsk = GetWalletForJSONRPCRequest(request, WalletPurpose::TradeAsk);
+        if (pwalletAsk) {
+            auto as = pwalletAsk->GetAccountAddresses("");
+            if (as.empty()) {
+                return ret;
+            }
+            askAddr = CBitcoinAddress(*as.begin());
+        }
+    } else {
+        askAddr = CBitcoinAddress(strAddr);
+    }
+    if (!askAddr.IsValid()) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid ask address");
+    }
+
+    UniValue options = request.params[1];
+    
+    CAmount nAmount = AmountFromValue(request.params[1]);
+    if (nAmount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount asked");
+
+    CAmount nPrice = AmountFromValue(request.params[2]);
+    if (nAmount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid unit price asked");
+    
+    CWalletTx wtx;
+    wtx.mapValue["comment"] = "ask";
+    wtx.mapValue["to"] = "askto";
+    
+    return ret;
+}
+
+UniValue bid(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request, WalletPurpose::Default);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() > 2)
+        throw std::runtime_error(
+            "bid (amount,unit_price)\n"
+            "\nBid for a price of a specific amount.\n"
+            "\nArguments:\n"
+            "1. amount         (numeric) The amount number of BTC\n"
+            "2. unit_price     (numeric) The unit price of bidding\n"
+            "\nResult:\n"
+            "{\n"
+            "  \"tx\": xxx,    The transaction created for this order.\n"
+            "}\n"
+
+            "\nExamples:\n"
+            "\nBid 5000USD per unit for 10BTC\n"
+            + HelpExampleCli("bid", "10 5000")
+        );
+    UniValue ret(UniValue::VOBJ);
+    
+    return ret;
+}
+
 UniValue listaccounts(const JSONRPCRequest& request)
 {
     CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
@@ -3564,6 +3654,8 @@ static const CRPCCommand commands[] =
     { "trading",            "listbidaddresses",         &listbidaddresses,         false,  {"count","skip","include_watchonly"} },
     { "trading",            "listasks",                 &listasks,                 false,  {"count","skip","include_watchonly"} },
     { "trading",            "listbids",                 &listbids,                 false,  {"count","skip","include_watchonly"} },
+    { "trading",            "ask",                      &ask,                      false,  {"amount","unit_price"} },
+    { "trading",            "bid",                      &bid,                      false,  {"amount","unit_price"} },
 
     { "generating",         "generate",                 &generate,                 true,   {"nblocks","maxtries"} },
 };
