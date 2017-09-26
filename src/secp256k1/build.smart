@@ -2,11 +2,11 @@ project (tools/gcc/c)
 
 files (
     gen_context
-    '*.la'
-    '*.lo'
+    *.la
+    *.lo
 )
 
-CFLAGS += $(@.variant_cflags)
+CFLAGS += $(@->variant_cflags)
 CFLAGS += -DHAVE_CONFIG_H
 CFLAGS += -I"$/"
 
@@ -15,13 +15,13 @@ lib2 := libsecp256k1_common.a
 objects1 := src/secp256k1.o
 objects2 := src/asm/field_10x26_arm.o
 
-$(lib1): src/ecmult_static_context.h c.'lib.a'($(lib1) $(objects1))
-$(lib2): c.'lib.a'($(lib2) $(objects2))
+$(lib1): src/ecmult_static_context.h c->lib.a($(lib1) $(objects1))
+$(lib2): c->lib.a($(lib2) $(objects2))
 
-src/ecmult_static_context.h:[(compare) (stderr) (stdout) (shell)]: gen_context
+src/ecmult_static_context.h:[(compare) (shell -oe)]: gen_context
 	./gen_context
 
-gen_context:[(compare) (stderr) (stdout) (shell)]: src/gen_context.c
+gen_context:[(compare) (shell -oe)]: src/gen_context.c
 	$(CXX) -I$/ -o $@ $^
 
 clean:

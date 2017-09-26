@@ -1,21 +1,22 @@
 project (tools/gcc/c++)
 
 import (
-    './crypto'
-    './univalue'
-    './secp256k1'
-    './leveldb'
-    './leveldb/helpers/memenv'
-    'libzmq'
+    ./crypto
+    ./univalue
+    ./secp256k1
+    ./leveldb
+    ./leveldb/helpers/memenv
+    libzmq
 )
 
 files (
-    '*.lo' '*.la'
+    *.lo
+    *.la
 )
 
 top := $(ndir 3,$/)
 
-CXXFLAGS += $(@.variant_cflags)
+CXXFLAGS += $(@->variant_cflags)
 CXXFLAGS += -DHAVE_CONFIG_H
 CXXFLAGS += -DBOOST_NO_CXX11_SCOPED_ENUMS
 CXXFLAGS += -I"$/" -I"$//config"
@@ -38,11 +39,11 @@ programs: \
 objects: bitcoind.o
 
 clean: \
-  crypto.clean \
-  univalue.clean \
-  secp256k1.clean \
-  leveldb.clean \
-  memenv.clean
+  crypto->clean \
+  univalue->clean \
+  secp256k1->clean \
+  leveldb->clean \
+  memenv->clean
 	println "clean: $."
 	remove-all *.o *.a *.lo *.la .deps .libs \
 	  script/*.o \
